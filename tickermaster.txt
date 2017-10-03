@@ -1,0 +1,4 @@
+NFLX
+GOOG
+GS
+VZ
