@@ -6,7 +6,35 @@ die("couldnt connect to server");
 mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
 main();
 mysqli_close($connect);
-
+?>
+<html>
+<head>
+<style>
+table 
+{
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
+tr:hover {background-color:#80fc8b;}
+input[type=submit] {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+<?php
 include("includes/db.php");
 function display($ticker)
 {
@@ -14,7 +42,7 @@ function display($ticker)
 	if(mysqli_connect_errno()) 
 	die("couldnt connect to server");
 	mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
-        $sql="SELECT * FROM ANALYSISa WHERE ticker='".$ticker."'";
+        $sql="SELECT * FROM ANALYSISa WHERE ticker='$ticker'";
 	$result = mysqli_query($connect,$sql);
 	if(!$result)
 	{
@@ -46,6 +74,10 @@ function display($ticker)
 }
 function main()
 {
+session_start();
+if(!$_SESSION["user"])
+header('location: index.php');
+$e=$_SESSION["user"];
 	echo "<table border='1'>
 	<tr>
 	<th>code of company</th>
@@ -58,13 +90,20 @@ function main()
 	<th>percentage of days the stock increases*average of percentage of increases</th>
 	<th>percentage of days the stock decreases*average of percentage of decrease</th>
 	</tr>";
-	$maintickerfile= fopen("tickermaster.txt","r");
-	while(!feof($maintickerfile))
+	$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+	mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+	$s="SELECT * FROM com where username='$e'";
+	$result = mysqli_query($connect,$s);
+	while($row = mysqli_fetch_array($result))
 	{
-		$companyticker=fgets($maintickerfile);
+		$companyticker=$row['code'];
 		$companyticker=trim($companyticker);
 		display($companyticker);
 	}
 	echo "</table></center>";
 }
 ?>
+</body>
+</html>
