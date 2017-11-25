@@ -1,128 +1,27 @@
 <?php
+include("includes/db.php");
 session_start();
 if(!$_SESSION["user"])
 header('location: index.php');
 global $e;
 $e=$_SESSION["user"];
-
-include("includes/db.php");
-if($_GET["code"])
+$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+$sql="SELECT code FROM com where username='$e'";
+$result = mysqli_query($connect,$sql);
+if(mysqli_num_rows($result)<2)
 {
-	$c=$_GET["code"];
-	$con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
-	if (mysqli_connect_errno($con)) 
-	{
-		echo "Failed to connect to MySQL: " . mysqli_connect_error();
-	}
-	$sql1="select * from company where  code='$c'";
-
-	$result=mysqli_query($con,$sql1);
-	if($result)
-	{
-		if(mysqli_num_rows($result)==0)
-		{
-			echo '<script language="javascript">';
-			echo 'alert("code adding failed not a valid code")';  //not showing an alert box.
-			echo '</script>';
-		}
-		else
-		{
-			$sql="INSERT INTO com(username,code) VALUES('$e','$c')";
-			$query=mysqli_query($con,$sql);
-			if($query)
-			{
-				echo '<script language="javascript">';
-				echo 'alert("Successful")';  //not showing an alert box.
-				echo '</script>';
-                main($c);
-			}
-		}
-	}
-	else
-	{
-		echo '<script language="javascript">';
-		echo 'alert("code adding failed ")';  //not showing an alert box.
-		echo '</script>';
-	}
-}
-
-function createURL($tickername)
-{
-
-    return "http://www.google.com/finance/historical?q=$tickername&startdate=AUG+1%2C+2017&enddate=NOV+19%2C+2017&output=csv";
-}
-function getCSVFile($url,$outputFile)
-{
-	$content=file_get_contents($url);
-    $content=str_replace("Date,Open,High,Low,Close,Volume","",$content);
-	$content=trim($content);
-	file_put_contents($outputFile,$content);
-}
-function filetoDatabase($textfile,$tablename)
-{
-    $count=0;
-	$file = fopen($textfile,"r");
-	$line=fgets($file);
-	while(!feof($file))
-	{
-        $line=fgets($file);
-		$pieces=explode(",",$line);
-		$date=$pieces[0];
-		$mdate=date("Y-m-d",strtotime($date));
-		$open=$pieces[1];
-		$high=$pieces[2];
-		$low=$pieces[3];
-		$close=$pieces[4];
-		$volume=$pieces[5];
-		$amount_change=$close-$open;
-		if($open==0)
-        {
-			continue;
-		}
-                $percent_change=(($amount_change/$open)*100);
-		$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123')or die("error");
-                mysqli_select_db($connect,"b11_18001806_dbms")or die("error");
-		$sql="SELECT * FROM $tablename";
-		$result=mysqli_query($connect,$sql);
-		if(!$result)
-		{
-			$sql2= "CREATE TABLE $tablename(Date VARCHAR(10) PRIMARY KEY,Open FLOAT,High FLOAT,Low FLOAT,Close FLOAT,Volume INT(6),amount_change FLOAT,percent_change FLOAT) ";
-			mysqli_query($connect,$sql2);
-		}
-		$sql4="SELECT * FROM $tablename where date='$date'";
-		$result1=mysqli_query($connect,$sql4);
-		if($result1)
-		{
-			if(mysqli_num_rows($result1)==0)
-			{
-		
-				$sql3="INSERT INTO $tablename(Date,Open,High,Low,Close,Volume,amount_change,percent_change) VALUES('$mdate','$open','$high','$low','$close','$volume','$amount_change','$percent_change')";
-				mysqli_query($connect,$sql3);
-			}
-		}
-		else
-		{
-			echo "error processing query";
-		}
-		
-	}
-	fclose($file);
-}
-function main($e)
-{
-	
-	$companyticker=trim($e);
-	$fileurl=createURL($companyticker);
-	$companytxtfile="txtfiles/".$companyticker.".txt";
-	getCSVFile($fileurl,$companytxtfile);
-	filetoDatabase($companytxtfile,$companyticker);   
+echo " <a href="."index.php".">add company first</a>";
+die();
 }
 ?>
 <html>
 <head>
 <script>
-function myFunction() {
- 
+function myFunction() 
+{
     var input, filter, ul, li, a, i;
     input = document.getElementById("myInput");
     filter = input.value.toUpperCase();
@@ -161,6 +60,8 @@ function showResult(str) {
 }
 </script>
 <style>
+
+
 * {
   box-sizing: border-box;
 }
@@ -200,22 +101,16 @@ function showResult(str) {
 body {
   margin: 0;
 }
-
-/* Style the header */
 .header {
     background-color: #f1f1f1;
     text-align: center;
 }
-
-/* Style the top navigation bar */
 .topnav {
 margin: 7px;
     overflow: hidden;
     background-color: white;
 height: 350px;    
 }
-
-/* Style the topnav links */
 .topnav a {
     padding: 14px 16px;
 float: left;
@@ -225,50 +120,36 @@ float: left;
  
     text-decoration: none;
 }
-
-/* Change color on hover */
 .topnav a:hover {
     background-color: #4CAF50;
     color: black;
 }
-
-/* Create three unequal columns that floats next to each other */
 .column {
 
     float: left;
     padding: 15px;
 
 }
-
-/* Left and right column */
 .column.side {
     width: 26%;
  background-color: #e1e8e5;
 }
-
-/* Middle column */
 .column.middle {
 	background-color: white;
     width: 47.5%;
 margin-left: 0.20%;
 margin-right: 0.20%;
 }
-
-/* Clear floats after the columns */
 .row:after {
     content: "";
     display: table;
     clear: both;
 }
-
-/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
 @media (max-width: 600px) {
     .column.side, .column.middle {
         width: 100%;
     }
 }
-
-/* Style the footer */
 .footer {
     background-color: #f1f1f1;
     padding: 10px;
@@ -289,6 +170,7 @@ input[type=submit]:hover {
     background-color: #45a049;
 }
 </style>
+<title>analysis of two</title>
 </head>
 <body bgcolor= #cfd1d3>
 <div class="row " style="background-color:  #f1f1f1">
@@ -322,29 +204,72 @@ echo $e;
 </div>
 <div class="column middle" style=" height: 350px;"  >
 <div style="  margin: auto; width: 90%;">
-<div>
-<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for companies click on them to add" title="Type in a name">
-</div>
 <div style="overflow-y: scroll; height: 250px;">
-<ul id="myUL">
+select two ticker:
+<form method=post action=tsubmit.php>
+<label>ticker1</label>
+<select name=select>
 <?php
-$key=$_GET['key'];
-$array = array();
+$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+$sql="SELECT code FROM com where username='$e'";
+$result = mysqli_query($connect,$sql);
+if(mysqli_num_rows($result)){
+while($rs=mysqli_fetch_array($result)){
+
+?>
+      <option value="<?php echo $rs['code'] ?>" > <?php echo $rs['code'] ?></option>
+<?php
+  }
+}
+?>
+</select><br>
+<label>ticker2</label>
+<select name=select2>
+<?php
+$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+$sql="SELECT code FROM com where username='$e'";
+$result = mysqli_query($connect,$sql);
+if(mysqli_num_rows($result)){
+while($rs=mysqli_fetch_array($result)){
+
+?>
+      <option value="<?php echo $rs['code'] ?>" > <?php echo $rs['code'] ?></option>
+<?php
+  }
+}
+?>
+</select><br>
+input start date: <input type=date  name=sdate max="<?php echo $d ; ?>"><br>
+input end date:
+<input type=date name=edate  min="
+<?php
 $con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
 if (mysqli_connect_errno($con)) 
 {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
-$query=mysqli_query($con,"select * from company ");
-while($row=mysqli_fetch_assoc($query))
+$s="select Date from $e order by date ASC limit 1";
+$query=mysqli_query($con,$s);
+if($query)
 {
-    $s="form.php?code=".$row['code'];
-    ?>
-	<li><a href="<?php echo $s ?>"><?php echo $row['name'] ?></a></li>
-    <?php
+	while($row=mysqli_fetch_assoc($query))
+		{
+			echo $row["Date"];
+		}
 }
-?>
-</ul>
+else
+{
+	echo "error";
+}
+?>"><br>
+<input type="submit">
+</form>
 </div>
 </div>
 </div>
@@ -375,7 +300,7 @@ while($row=mysqli_fetch_assoc($query))
 }
 ?>
 </div>
-</div>
+</div>  
 </div>
 </div>
 </body>

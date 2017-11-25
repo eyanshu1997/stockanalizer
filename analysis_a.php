@@ -1,4 +1,5 @@
 <?php
+
 $connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
 if(mysqli_connect_errno()) 
 die("couldnt connect to server");
@@ -6,10 +7,30 @@ mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the da
 
 function masterloop()
 {
-    $maintickerfile= fopen("tickermaster.txt","r");
-	while(!feof($maintickerfile))
+	session_start();
+	if(!$_SESSION["user"])
+	header('location: index.php');
+	$e=$_SESSION["user"];
+$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+$sql="SELECT code FROM com where username='$e'";
+$result = mysqli_query($connect,$sql);
+if(!mysqli_num_rows($result))
+{
+echo " <a href="."index.php".">add company first</a>";
+die();
+}
+	$connect=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123');
+	if(mysqli_connect_errno()) 
+	die("couldnt connect to server");
+	mysqli_select_db($connect,"b11_18001806_dbms") or die('couldnt connect to the database');
+	$s="SELECT * FROM com ";
+	$result2 = mysqli_query($connect,$s);
+	while($row2 = mysqli_fetch_array($result2))
 	{
-		$companyticker=fgets($maintickerfile);
+	    $companyticker=$row2['code'];
 		$companyticker=trim($companyticker);
 		$total=0;
 		$nextdaydecreases=0;
@@ -103,3 +124,4 @@ function insertintoresulttable($companyticker,$nextdayincreases,$nextdayincrease
 }
 masterloop();
 ?>
+			

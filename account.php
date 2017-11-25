@@ -6,49 +6,9 @@ global $e;
 $e=$_SESSION["user"];
 
 include("includes/db.php");
-if($_GET["code"])
-{
-	$c=$_GET["code"];
-	$con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
-	if (mysqli_connect_errno($con)) 
-	{
-		echo "Failed to connect to MySQL: " . mysqli_connect_error();
-	}
-	$sql1="select * from company where  code='$c'";
-
-	$result=mysqli_query($con,$sql1);
-	if($result)
-	{
-		if(mysqli_num_rows($result)==0)
-		{
-			echo '<script language="javascript">';
-			echo 'alert("code adding failed not a valid code")';  //not showing an alert box.
-			echo '</script>';
-		}
-		else
-		{
-			$sql="INSERT INTO com(username,code) VALUES('$e','$c')";
-			$query=mysqli_query($con,$sql);
-			if($query)
-			{
-				echo '<script language="javascript">';
-				echo 'alert("Successful")';  //not showing an alert box.
-				echo '</script>';
-                main($c);
-			}
-		}
-	}
-	else
-	{
-		echo '<script language="javascript">';
-		echo 'alert("code adding failed ")';  //not showing an alert box.
-		echo '</script>';
-	}
-}
 
 function createURL($tickername)
 {
-
     return "http://www.google.com/finance/historical?q=$tickername&startdate=AUG+1%2C+2017&enddate=NOV+19%2C+2017&output=csv";
 }
 function getCSVFile($url,$outputFile)
@@ -117,64 +77,38 @@ function main($e)
 	getCSVFile($fileurl,$companytxtfile);
 	filetoDatabase($companytxtfile,$companyticker);   
 }
+
+if($_POST["code"])
+{
+	$code=$_POST["code"];
+	$con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
+	if (mysqli_connect_errno($con)) 
+	{
+		echo "Failed to connect to MySQL: " . mysqli_connect_error();
+	}
+	$sql="DELETE FROM com where username='$e' and code='$code' ";
+	$query=mysqli_query($con,$sql);
+	if($query)
+	{
+		?>
+		<script language="javascript">
+		alert("Successful")
+		</script>
+		<?php
+ 	}
+}
 ?>
 <html>
 <head>
-<script>
-function myFunction() {
- 
-    var input, filter, ul, li, a, i;
-    input = document.getElementById("myInput");
-    filter = input.value.toUpperCase();
-    ul = document.getElementById("myUL");
-    li = ul.getElementsByTagName("li");
-    for (i = 0; i < li.length; i++) {
-        a = li[i].getElementsByTagName("a")[0];
-        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
-        } else {
-            li[i].style.display = "none";
 
-        }
-    }
-}
-function showResult(str) {
-  if (str.length==0) { 
-    document.getElementById("livesearch").innerHTML="";
-    document.getElementById("livesearch").style.border="0px";
-    return;
-  }
-  if (window.XMLHttpRequest) {
-    // code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
-  } else {  // code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xmlhttp.onreadystatechange=function() {
-    if (this.readyState==4 && this.status==200) {
-      document.getElementById("livesearch").innerHTML=this.responseText;
-      document.getElementById("livesearch").style.border="1px solid #A5ACB2";
-    }
-  }
-  xmlhttp.open("GET","search.php?key="+str,true);
-  xmlhttp.send();
-}
-</script>
 <style>
+
+
 * {
   box-sizing: border-box;
 }
 
-#myInput {
-  background-image: url('/css/searchicon.png');
-  background-position: 10px 12px;
-  background-repeat: no-repeat;
-  width: 100%;
-  font-size: 16px;
-  padding: 12px 20px 12px 40px;
-  border: 1px solid #ddd;
-  margin-bottom: 12px;
-}
+
 
 #myUL {
   list-style-type: none;
@@ -289,71 +223,50 @@ input[type=submit]:hover {
     background-color: #45a049;
 }
 </style>
+
 </head>
 <body bgcolor= #cfd1d3>
+
 <div class="row " style="background-color:  #f1f1f1">
-<div class="header">
+	  <div class="header">
 <div class="header" style="float:left;">
-<?php
+    <?php
 echo " welcome  " ;
 echo $e;
 ?>
 </div>
-<div class="header" style="float: right;">
+  <div class="header" style="float: right;">
+
 <a href=logout.php>logout</a>
 </div>
 </div>
-</div>
+ </div>
 <div class="row">
 <div class="header">
 <a href="index.php"> <img src="banner.png" height=44% width=100%></a>
 </div>
 </div>
-<div class="row">
-<div class="column side" style="height: 350px; overflow: hidden;">
+
+ 
+ <div class="row">
+  <div class="column side" style="height: 350px; overflow: hidden;">
 <div class="topnav" >
 <div style="background-color:#434547; border: 2px solid white; border-radius: 1em;">
-<h2 ><center><font color="white">Navigation Bar</font></center></h2>
+    <h2 ><center><font color="white">Navigation Bar</font></center></h2>
+
 </div>
-<p><a href=two.php>click here to see stock of company side by side</a></p>
+	<p><a href=two.php>click here to see stock of company side by side</a></p>
+
 <p><a href=analysis_a.php>click here to see analysis of company by observing history</a></p>
+
 <p><a href=account.php>click here to edit details of account</a></p><br>
 </div>
 </div>
-<div class="column middle" style=" height: 350px;"  >
-<div style="  margin: auto; width: 90%;">
-<div>
-<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for companies click on them to add" title="Type in a name">
-</div>
-<div style="overflow-y: scroll; height: 250px;">
-<ul id="myUL">
-<?php
-$key=$_GET['key'];
-$array = array();
-$con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
-if (mysqli_connect_errno($con)) 
-{
-    echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
-$query=mysqli_query($con,"select * from company ");
-while($row=mysqli_fetch_assoc($query))
-{
-    $s="form.php?code=".$row['code'];
-    ?>
-	<li><a href="<?php echo $s ?>"><?php echo $row['name'] ?></a></li>
-    <?php
-}
-?>
-</ul>
-</div>
-</div>
-</div>
-<div class="column side" style=" height:350px;">
-<div style=" margin: 7px;  background-color: white; ">
-<div style="background-color: #434547; border: 2px solid white; border-radius: 1em;">
-<center><font color="white"><h2 >Your installed companies:</h2>Select the company to see stock</font></center>
-</div>
-<div style="height: 250px;overflow-y: scroll;">
+  <div class="column middle" style=" height: 350px;"  >
+
+    <div style=" margin: 7px;  background-color: white; ">
+	<div style="height: 250px;overflow-y: scroll;">
+
 <?php
 $con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
 if (mysqli_connect_errno($con)) 
@@ -366,6 +279,40 @@ while($row=mysqli_fetch_assoc($query))
 {
 	?>
 	<p>
+	<form action="" method="post">
+    <input name="code" type="hidden" value= "<?php echo $row["code"] ; ?>" >
+	<label> <?php echo htmlspecialchars($row["code"]) ; ?>:</label><input type=submit value="delete " >
+	</form>
+	</p>
+	<?php
+}
+?>
+</div>
+</div>
+</div>
+ <div class="column side" style=" height:350px;">
+    <div style=" margin: 7px;  background-color: white; ">
+	<div style="background-color: #434547; border: 2px solid white; border-radius: 1em;">
+    <center><font color="white"><h2 >Your installed companies:</h2>Select the company to see stock</font></center>
+
+	</div>
+	<div style="height: 250px;overflow-y: scroll;">
+
+<?php
+$con=mysqli_connect('sql308.byethost11.com','b11_18001806','eshu@123','b11_18001806_dbms');
+if (mysqli_connect_errno($con)) 
+{
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+
+
+$e=$_SESSION["user"];
+$query=mysqli_query($con,"select * from com where username = '$e'");
+while($row=mysqli_fetch_assoc($query))
+{
+	?>
+	
+	<p>
 	<form action="individualcompany.php" method="post">
     <input name="code" type="hidden" value=" <?php echo $row["code"] ; ?>" >
 	<input type=submit value=" <?php echo htmlspecialchars($row["code"]) ; ?>" >
@@ -376,7 +323,8 @@ while($row=mysqli_fetch_assoc($query))
 ?>
 </div>
 </div>
-</div>
+  </div>
 </div>
 </body>
 </html>		
+	
